@@ -6,7 +6,6 @@
 - Day name and date on the same top line
 - Stream card anchored at the bottom of each day
 - Hover a stream to see time, title, description and Twitch link
-- Teal and Red themes
 - Theme choice saved in the browser
 - Google Calendar sync through Google Apps Script
 - No Google password/API key stored in the overlay
@@ -202,7 +201,7 @@ GitHub says Pages changes can take several minutes to become available.
 1. Open OBS.
 2. Add a new "Browser" source.
 3. Name it:
-   `Baguetty Stream Schedule`
+   `Stream Schedule`
 4. Enter your GitHub Pages URL.
 5. Suggested size:
    Width: 1200
@@ -215,22 +214,6 @@ The overlay will load directly from GitHub Pages.
 
 If you want the schedule to be visible over your game/camera, the page background is transparent outside the schedule card.
 
-## Theme switching
-
-The overlay starts with Teal.
-
-Click:
-
-`Theme: Teal`
-
-to switch to:
-
-`Theme: Red`
-
-The selected theme is saved in the browser using localStorage.
-
-For OBS, you can also force a default theme in the HTML by changing the `red-theme` class.
-
 ## Security note
 
 Do NOT put your Google password, OAuth refresh token, Google API private key, or other credentials in `index.html`.
@@ -240,15 +223,5 @@ The Apps Script acts as the private bridge to the selected calendar. Only the ev
 Also remember that GitHub Pages sites are publicly accessible. Do not put private calendar credentials or sensitive information in the repository.
 
 ## Future improvements
-
-The current version intentionally keeps the layout clean. It can be extended with:
-
-- Multiple streams on the same day
+- Multiple streams on the same day?
 - LIVE NOW indicator
-- Countdown to next stream
-- Different colours based on stream category
-- "Starting in 2h 15m"
-- Automatic Twitch live status
-- Custom Twitch channel name
-- Mobile/vertical OBS layout
-- Animated day transitions
