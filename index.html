@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Baguetty's Stream Schedule</title>
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#151b22;
+    --panel2:#1b232d;
+    --text:#f4f7f8;
+    --muted:#8d9aa5;
+    /* --accent:#36d1c4;
+    --accent2:#75eee4; */
+    --accent:#da4242;
+    --accent2:#e65f5f;
+    --stream:rgba(195,1,1,0.12);
+    --streamborder:rgba(255,99,99,0.6);
+    --today:rgba(195,1,1,0.12);
+    --todayborder:rgba(255,99,99,0.6);
+    --border:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;width:100%;height:100%;background:transparent;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text)}
+  body{display:flex;align-items:center;justify-content:center;padding:24px}
+  .schedule{
+    width:min(1180px,100%);
+    background:linear-gradient(145deg,rgba(21,27,34,.98),rgba(12,17,23,.98));
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:22px;
+    box-shadow:0 18px 60px rgba(0,0,0,.38);
+  }
+  .top{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    gap:20px;margin-bottom:18px
+  }
+  .brand{
+    display:flex;align-items:center;gap:12px
+  }
+  .logo{
+    width:42px;height:42px;border-radius:13px;
+    display:grid;place-items:center;
+    background:var(--accent);color:#071211;
+    font-weight:900;font-size:23px;
+    box-shadow:0 0 22px rgba(54,209,196,.18)
+  }
+  h1{font-size:22px;line-height:1;margin:0 0 6px;font-weight:800;letter-spacing:-.4px}
+  .range{font-size:12px;color:var(--muted)}
+  .legend{font-size:11px;color:var(--muted);display:flex;gap:14px}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:5px}
+  .week{margin-top:16px}
+  .week-title{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:0 4px 8px;font-size:12px;font-weight:800;
+    text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)
+  }
+  .days{
+    display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px
+  }
+  .day{
+    position:relative;min-height:112px;padding:12px 10px;
+    border:1px solid var(--border);border-radius:15px;
+    background:rgba(255,255,255,.025);
+    transition:.16s ease;
+  }
+  .day:hover{transform:translateY(-2px);background:rgba(255,255,255,.045);border-color:var(--todayborder)}
+  .day.today{background:var(--today);border-color:var(--todayborder)}
+  .day-header{display:flex;align-items:baseline;justify-content:flex-start;gap:6px}
+  .day-name{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+  .date{font-size:20px;font-weight:800}
+  .today .date{color:var(--accent2)}
+  .stream{
+    position:absolute;left:9px;right:9px;bottom:9px;
+    min-height:35px;border-radius:10px;padding:7px 8px;
+    background:var(--stream);border:1px solid var(--streamborder);
+    cursor:pointer
+  }
+  .stream-title{font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stream-time{font-size:10px;color:var(--accent2);margin-top:2px}
+  .empty{position:absolute;bottom:11px;left:11px;font-size:10px;color:#5f6b75}
+  .tooltip{
+    position:absolute;z-index:20;left:50%;bottom:calc(100% + 10px);
+    transform:translateX(-50%) translateY(5px);
+    width:210px;padding:12px;border-radius:12px;
+    background:#090d12;border:1px solid var(--todayborder);
+    box-shadow:0 15px 40px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;transition:.14s ease;
+  }
+  .day:hover .tooltip{opacity:1;transform:translateX(-50%) translateY(0)}
+  .tooltip:after{
+    content:"";position:absolute;left:50%;bottom:-6px;
+    width:10px;height:10px;background:#090d12;
+    border-right:1px solid rgba(54,209,196,.28);
+    border-bottom:1px solid rgba(54,209,196,.28);
+    transform:translateX(-50%) rotate(45deg)
+  }
+  .tooltip h3{margin:0 0 5px;font-size:13px}
+  .tooltip .time{color:var(--accent2);font-size:11px;font-weight:700}
+  .tooltip .note{font-size:10px;color:var(--muted);margin-top:6px;line-height:1.35}
+  .twitch{
+    display:inline-flex;align-items:center;gap:5px;margin-top:9px;
+    color:#fff;background:#9146ff;border-radius:7px;padding:5px 8px;
+    text-decoration:none;font-size:10px;font-weight:800
+  }
+  .footer{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:16px;padding:0 4px;font-size:10px;color:var(--muted)
+  }
+  .footer strong{color:var(--accent)}
+  @media(max-width:760px){
+    body{padding:10px}
+    .schedule{padding:14px;border-radius:16px}
+    .top{align-items:flex-start}
+    .legend{display:none}
+    .days{gap:5px}
+    .day{min-height:94px;padding:9px 7px}
+    .date{font-size:16px}
+    .stream{left:5px;right:5px;bottom:5px;padding:5px}
+  }
+</style>
+</head>
+<body>
+<div class="schedule">
+  <div class="top">
+    <div class="brand">
+      <div class="logo">B</div>
+      <div>
+        <h1 id="title">Baguetty's Stream Schedule</h1>
+        <div class="range" id="range">Loading…</div>
+      </div>
+    </div>
+    <div class="legend"><span><i class="dot"></i>Stream planned</span><span>Hover a stream for details</span></div>
+  </div>
+
+  <div id="weeks"></div>
+
+  <div class="footer">
+    <span>All times shown in your configured timezone</span>
+    <span>Made with <strong>♥ Baguetty</strong></span>
+  </div>
+</div>
+
+<script>
+/*
+  GOOGLE CALENDAR CONNECTION
+  --------------------------
+  The overlay expects a JSON endpoint that returns an array like:
+
+  [
+    {
+      "start": "2026-09-14T19:00:00+01:00",
+      "end": "2026-09-14T22:00:00+01:00",
+      "title": "Once Human",
+      "url": "https://www.twitch.tv/baguetty",
+      "description": "Tonight's stream"
+    }
+  ]
+
+  Put that endpoint in CALENDAR_API_URL below.
+
+  The Apps Script endpoint returns JSONP, so the overlay loads it with a
+  callback query parameter. This also works in an OBS Browser Source.
+*/
+
+const CONFIG = {
+  title: "Baguetty's Stream Schedule",
+  twitchFallback: "https://www.twitch.tv/christwhite96/",
+
+  // Example:d
+  // CALENDAR_API_URL: "https://your-google-apps-script-url/exec"
+  CALENDAR_API_URL: "https://script.google.com/macros/s/AKfycbyed2FGR4H_NGv_m8tPQv6HySz-oDsfTpBzsv-vr83Y2x5EC4C1I1vVqE_6zi_eenqwTA/exec",
+
+  // Set to true while testing the design without Google Calendar.
+  DEMO_MODE: false,
+
+  // Optional timezone. "Europe/London" is suitable for UK streaming.
+  TIME_ZONE: "Europe/London"
+};
+
+const demoEvents = [
+  {start:"2026-09-14T19:00:00+01:00",end:"2026-09-14T22:00:00+01:00",title:"Once Human",url:CONFIG.twitchFallback,description:"Main stream"},
+  {start:"2026-09-16T20:00:00+01:00",end:"2026-09-16T23:00:00+01:00",title:"Once Human",url:CONFIG.twitchFallback,description:"Boss farming"},
+  {start:"2026-09-18T19:30:00+01:00",end:"2026-09-18T22:30:00+01:00",title:"Community Night",url:CONFIG.twitchFallback,description:"Playing with viewers"},
+  {start:"2026-09-20T18:00:00+01:00",end:"2026-09-20T21:00:00+01:00",title:"Chill Stream",url:CONFIG.twitchFallback,description:"Sunday stream"}
+];
+
+function monday(d){
+  const x=new Date(d);
+  const day=x.getDay();
+  const diff=(day===0?-6:1-day);
+  x.setHours(0,0,0,0);
+  x.setDate(x.getDate()+diff);
+  return x;
+}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function key(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function fmtDate(d){
+  return new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"short"}).format(d);
+}
+function fmtTime(s,e){
+  const a=new Date(s),b=new Date(e);
+  const f=new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:CONFIG.TIME_ZONE});
+  return `${f.format(a)} – ${f.format(b)}`;
+}
+function fmtDay(d){
+  return new Intl.DateTimeFormat("en-GB",{weekday:"short"}).format(d);
+}
+function sameDay(a,b){return key(a)===key(b)}
+
+async function loadEvents(){
+  if(CONFIG.DEMO_MODE || !CONFIG.CALENDAR_API_URL) return demoEvents;
+  return await new Promise((resolve,reject)=>{
+    const callbackName="calendarCallback_"+Date.now();
+    const script=document.createElement("script");
+    const timeout=setTimeout(()=>{
+      cleanup();
+      reject(new Error("Calendar endpoint timed out"));
+    },10000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      delete window[callbackName];
+      script.remove();
+    }
+
+    window[callbackName]=(data)=>{
+      cleanup();
+      if(!Array.isArray(data)){
+        reject(new Error(data?.error||"Calendar endpoint returned invalid data"));
+        return;
+      }
+      resolve(data);
+    };
+    script.onerror=()=>{
+      cleanup();
+      reject(new Error("Could not load calendar endpoint"));
+    };
+    const url=new URL(CONFIG.CALENDAR_API_URL);
+    url.searchParams.set("callback",callbackName);
+    url.searchParams.set("_",Date.now());
+    script.src=url.toString();
+    document.head.appendChild(script);
+  });
+}
+
+function render(events){
+  const now=new Date();
+  const thisMonday=monday(now);
+  const nextMonday=addDays(thisMonday,7);
+
+  const allEvents=events.map(e=>({...e,_date:new Date(e.start)}));
+  // debugger
+  const eventMap={};
+  for(const e of allEvents){
+    const k=key(e._date);
+    (eventMap[k] ||= []).push(e);
+  }
+
+  document.getElementById("range").textContent =
+    `${fmtDate(thisMonday)} – ${fmtDate(addDays(nextMonday,6))}`;
+
+  const container=document.getElementById("weeks");
+  container.innerHTML="";
+
+  [thisMonday,nextMonday].forEach((start,index)=>{
+    const week=document.createElement("section");
+    week.className="week";
+    const title=document.createElement("div");
+    title.className="week-title";
+    title.innerHTML=`<span>${index===0?"This week":"Next week"}</span><span>${fmtDate(start)} – ${fmtDate(addDays(start,6))}</span>`;
+    week.appendChild(title);
+
+    const days=document.createElement("div");
+    days.className="days";
+
+    for(let i=0;i<7;i++){
+      const d=addDays(start,i);
+      const cell=document.createElement("div");
+      cell.className="day"+(sameDay(d,now)?" today":"");
+      cell.innerHTML=`<div class="day-header"><div class="day-name">${fmtDay(d)}</div><div class="date">${d.getDate()}</div></div>`;
+
+      const eventsForDay=eventMap[key(d)]||[];
+      if(eventsForDay.length){
+        const e=eventsForDay[0];
+        const stream=document.createElement("div");
+        stream.className="stream";
+        stream.innerHTML=`
+          <div class="stream-title">${escapeHtml(e.title||"Stream")}</div>
+          <div class="stream-time">${fmtTime(e.start,e.end)}</div>
+        `;
+
+        const tip=document.createElement("div");
+        tip.className="tooltip";
+        tip.innerHTML=`
+          <h3>${escapeHtml(e.title||"Stream")}</h3>
+          <div class="time">${fmtTime(e.start,e.end)}</div>
+          ${e.description?`<div class="note">${escapeHtml(e.description)}</div>`:""}
+          <a class="twitch" href="${escapeAttr(e.url||CONFIG.twitchFallback)}" target="_blank" rel="noopener">Watch on Twitch ↗</a>
+        `;
+        cell.appendChild(tip);
+        cell.appendChild(stream);
+
+        // Clicking the day also opens Twitch.
+        cell.addEventListener("click",()=>window.open(e.url||CONFIG.twitchFallback,"_blank"));
+      }else{
+        cell.innerHTML+=`<div class="empty">No stream</div>`;
+      }
+      days.appendChild(cell);
+    }
+    week.appendChild(days);
+    container.appendChild(week);
+  });
+}
+function escapeHtml(v){
+  return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function escapeAttr(v){return escapeHtml(v).replace(/`/g,"&#96;")}
+
+async function start(){
+  try{
+    const events=await loadEvents();
+    // console.log(events);
+    render(events);
+  }catch(err){
+    console.error(err);
+    render([]);
+    document.getElementById("range").textContent="Calendar connection unavailable";
+  }
+}
+start();
+
+// Refresh calendar data every 5 minutes.
+setInterval(start,5*60*1000);
+</script>
+</body>
+</html>
